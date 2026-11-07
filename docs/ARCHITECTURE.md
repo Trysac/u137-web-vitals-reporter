@@ -1,30 +1,18 @@
 # Architecture
 
-## Overview
-
-`@trysac/web-vitals-reporter` is a small, dependency-free TypeScript library published to npm as ES modules with type
-declarations. Compute Core Web Vitals from normalized performance entries, rate them with the web.dev thresholds and send batched metrics through an injected transport
+`@trysac/web-vitals-reporter` separates the calculation logic and queue orchestration from browser APIs.
 
 ## Modules
 
-| Module | Responsibility |
-|---|---|
-| `src/index.ts` | Public API. Everything consumers import is exported from here. |
+1. **`src/core.ts`**:
+   - Contains pure algorithms for calculating Cumulative Layout Shift (`computeCls`), Interaction to Next Paint (`computeInp`), and threshold evaluations (`rate`).
+   - Defines the `createReporter` factory that manages a FIFO bounded queue, deduplicates interaction IDs, tracks the pre-input LCP candidate, and formats the output payload for transport.
+   - Contains no `document`, `window`, or Node-specific dependencies.
 
-Add a row when you add a module. Internal modules are not re-exported unless they are part of the public API.
+2. **`src/browser.ts`**:
+   - Thin adapter providing `attachToBrowser`.
+   - Hooks into `PerformanceObserver` entry streams (`paint`, `navigation`, `largest-contentful-paint`, `layout-shift`, `first-input`, `event`) and maps them into normalized `VitalEntry` objects.
+   - Listens to `visibilitychange` and `pagehide` to trigger `onHidden()` and `flush()`.
 
-## Boundaries
-
-- No runtime dependencies by default; any addition is justified in [STACK.md](STACK.md).
-- No I/O at import time. Functions are pure unless their documentation says otherwise.
-- Errors are thrown as built-in error types (`TypeError`, `RangeError`) with actionable messages.
-
-## Build and distribution
-
-`npm run build` compiles `src/` to `dist/` with `tsconfig.build.json`. Only `dist/` is published
-(`files` in `package.json`).
-
-## Decisions
-
-Architectural decisions are recorded in [decisions/](decisions/), starting with
-[0001](decisions/0001-record-architecture-decisions.md).
+3. **`src/index.ts`**:
+   - Re-exports the public interface.

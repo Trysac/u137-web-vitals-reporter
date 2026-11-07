@@ -1,55 +1,40 @@
-# web-vitals-reporter
+# @trysac/web-vitals-reporter
 
-[![npm version](https://img.shields.io/npm/v/@trysac/web-vitals-reporter.svg)](https://www.npmjs.com/package/@trysac/web-vitals-reporter)
-[![license: MIT](https://img.shields.io/npm/l/@trysac/web-vitals-reporter.svg)](LICENSE)
-[![CI](https://github.com/Trysac/u137-web-vitals-reporter/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u137-web-vitals-reporter/actions/workflows/ci.yml)
+Teams want field Web Vitals in their own metrics backend, but the browser APIs are event streams with subtle rules: CLS uses session windows, LCP stops at the first input, and INP ignores outliers on busy pages. Reimplementations get these rules wrong and lose data when the page is hidden. This TypeScript library keeps the rules in a pure, testable core fed by normalized entries and flushes batched metrics through an injected transport.
 
-Compute Core Web Vitals from normalized performance entries, rate them with the web.dev thresholds and send batched metrics through an injected transport
+## Installation
 
-## Problem
-
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and why existing
-packages do not solve it well. Keep it factual; link to an issue or decision record when there is one.
-
-## Install
-
-```sh
+```bash
 npm install @trysac/web-vitals-reporter
 ```
-
-Requires Node.js 20 or newer. The package ships ES modules with TypeScript declarations.
 
 ## Usage
 
 ```ts
-import { greet } from "@trysac/web-vitals-reporter";
-
-// Build a greeting; surrounding whitespace is ignored.
-const message = greet("  Ada ");
-console.log(message); // "Hello, Ada!"
-
-try {
-  greet("   ");
-} catch (error) {
-  console.error((error as Error).message); // "name must not be empty"
-}
+import { createReporter, attachToBrowser } from "@trysac/web-vitals-reporter";
+let id = 0;
+const reporter = createReporter({
+  page: window.location.pathname,
+  newId: () => `vital-${++id}`,
+  transport: (body) => navigator.sendBeacon("/api/vitals", body),
+});
+attachToBrowser(reporter, window);
 ```
 
-## API
+## API Summary
 
-| Export | Signature | Description |
-|---|---|---|
-| `greet` | `(name: string) => string` | Placeholder API; replace it with the real one. |
+- `createReporter(opts)`: Initializes a reporter with a `transport` function, `page` string, and `newId` generator. Defaults `maxQueue` to 50.
+- `observe(entry)`: Feeds normalized performance entries into the reporter.
+- `onHidden()`: Computes final metrics (CLS, LCP, INP) based on page state transition.
+- `flush()`: Attempts to send queued metrics. Retains metrics if transport fails.
+- `rate(name, value)`: Returns "good", "needs-improvement", or "poor" based on web.dev thresholds.
+- `computeCls(shifts)`: Calculates Cumulative Layout Shift using session window logic.
+- `computeInp(durations, count)`: Calculates Interaction to Next Paint including outlier exclusion.
 
-## Development
+### Why not `web-vitals` package?
 
-```sh
-npm install
-npm run check   # lint, format, types, tests with coverage, docs, secrets
-```
+Unlike the official `web-vitals` package, this library is a pure, zero-dependency core that provides deterministic, unit-testable calculations and a bounded FIFO queue, ensuring control over data delivery and retention without browser-side side effects.
 
-See [AGENTS.md](AGENTS.md) for the full command list and [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow.
+## Security
 
-## License
-
-[MIT](LICENSE) © 2026 Miguel Gomez
+See [docs/SECURITY.md](docs/SECURITY.md) for the threat model and input validation limits.

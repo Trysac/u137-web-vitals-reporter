@@ -9,4 +9,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Implement Web Vitals calculation core, threshold ratings, queueing reporter, and browser adapter
 - Initial project structure from the factory utility template.
