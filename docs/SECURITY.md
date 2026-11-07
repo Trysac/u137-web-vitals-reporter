@@ -1,28 +1,12 @@
-# Security practices
+# Security Policy
 
-How this repository keeps the package and its users safe. The disclosure policy is in
-[../SECURITY.md](../SECURITY.md).
+## Threat Model
 
-## Secrets
+### Defended
+- **Resource Exhaustion**: Memory exhaustion via unbounded queues is prevented by a mandatory FIFO cap (`maxQueue`, default 50).
+- **Invalid Input**: The `observe` function filters out entries that are not finite numbers or have negative timestamps, preventing corrupted metric calculations.
+- **Serialization**: Output is JSON-serialized to prevent injection in the transport layer.
 
-- No secrets, tokens or credentials in the repository, commit history, logs or prompts.
-- `gitleaks` runs as the last step of `npm run check` and as a dedicated CI job. Its configuration is
-  `.gitleaks.toml`.
-- Publishing credentials live only in the CI secret store or the maintainer's local npm configuration.
-
-## Dependencies
-
-- Runtime dependencies are avoided; development dependencies are limited to the toolchain listed in
-  [STACK.md](STACK.md).
-- Dependabot opens weekly updates for npm packages and GitHub Actions.
-- Commit the generated `package-lock.json` so installs are reproducible.
-
-## Code
-
-- No `eval`, dynamic `Function` construction or shelling out from library code.
-- Inputs from callers are validated and rejected with explicit errors.
-
-## Publishing
-
-- Packages are published from a clean checkout after `npm run check` passes.
-- Only `dist/` is included in the published tarball.
+### Not Defended
+- **Transport Security**: The library relies on the provided `transport` function to handle authentication and secure transmission (e.g., HTTPS).
+- **Runtime Tampering**: No protections against external scripts modifying the `window` or `PerformanceObserver` global state are implemented.

@@ -1,20 +1,27 @@
 /**
  * Public entry point of @trysac/web-vitals-reporter.
- *
- * Replace this placeholder with the utility's real API. Keep every export documented and covered by tests.
  */
 
-/**
- * Builds a greeting for `name`.
- *
- * @param name - Who to greet. Surrounding whitespace is ignored.
- * @returns The greeting, for example `"Hello, Ada!"`.
- * @throws {TypeError} When `name` is empty after trimming.
- */
-export function greet(name: string): string {
-  const trimmed = name.trim();
-  if (trimmed === "") {
-    throw new TypeError("name must not be empty");
-  }
-  return `Hello, ${trimmed}!`;
-}
+export {
+  attachToBrowser,
+  type MinimalBrowserWindow,
+  type PerformanceEntryLike,
+  type PerformanceObserverEntryListLike,
+  type PerformanceObserverLike,
+} from "./browser.js";
+export {
+  type CreateReporterOptions,
+  computeCls,
+  computeInp,
+  createReporter,
+  type MetricName,
+  type QueuedMetric,
+  type Rating,
+  type Reporter,
+  type ReporterPayload,
+  type ReporterStats,
+  rate,
+  type ShiftEntry,
+  THRESHOLDS,
+  type VitalEntry,
+} from "./core.js";

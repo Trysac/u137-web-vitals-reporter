@@ -1,28 +1,5 @@
-# Testing
+# Testing Strategy
 
-## Tools
-
-- [Vitest](https://vitest.dev/) runs the suites in `test/`.
-- Coverage is collected with V8 (`@vitest/coverage-v8`) over `src/`.
-
-## Commands
-
-```sh
-npm test            # vitest run --coverage
-npx vitest          # watch mode while developing
-npm run check       # every gate, including tests
-```
-
-## Rules
-
-- Coverage must stay at or above 80 % for lines, branches, functions and statements (`vitest.config.ts`).
-  Lowering the thresholds is not allowed.
-- Test through the public entry point (`src/index.ts`) and assert observable behavior: return values,
-  thrown errors and their messages.
-- Each bug fix adds a test that fails without the fix.
-- Tests are deterministic: no network, no real clock or randomness without injection, no shared state between
-  tests. Temporary files go to the OS temp directory and are removed by the test.
-
-## Reports
-
-Coverage reports are written to `coverage/` (text summary and `lcov`). The folder is ignored by git.
+- **`test/core.test.ts`**: Covers core algorithms, including threshold ratings, CLS session window algorithms (handling gaps and spans), INP percentile calculation, pre-input LCP stopping rules, interactionId deduplication, transport output formatting, and queue overflow behaviors. Tests also cover edge cases like non-finite values, negative inputs, and empty arrays.
+- **`test/browser.test.ts`**: Verifies the `attachToBrowser` adapter logic, ensuring it correctly attaches to `visibilitychange` and `pagehide` events, and that the `PerformanceObserver` properly processes and maps browser entries to `VitalEntry` objects. It also checks that cleanup functions correctly disconnect observers.
+- **`test/index.test.ts`**: Verifies the public API surface area.
