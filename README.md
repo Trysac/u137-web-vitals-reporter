@@ -4,9 +4,15 @@ Teams want field Web Vitals in their own metrics backend, but the browser APIs a
 
 ## Installation
 
-```bash
-npm install @trysac/web-vitals-reporter
+Not published to npm yet. Build it from a clone, then install it from the local path:
+
+```sh
+git clone https://github.com/Trysac/u137-web-vitals-reporter.git
+cd u137-web-vitals-reporter && npm ci && npm run build
+cd ../your-project && npm install ../u137-web-vitals-reporter
 ```
+
+Imports keep the package name: `import { ... } from "@trysac/web-vitals-reporter"`.
 
 ## Usage
 
